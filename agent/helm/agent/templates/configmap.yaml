@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "agent.fullname" . }}
+  labels:
+    {{- include "agent.labels" . | nindent 4 }}
+data:
+  ENVIRONMENT: {{ .Values.config.environment | quote }}
+  AWS_REGION: {{ .Values.config.awsRegion | quote }}
+  LLM_MODEL_ID: {{ .Values.config.llmModelId | quote }}
+  EMBEDDING_MODEL_ID: {{ .Values.config.embeddingModelId | quote }}
+  OPENSEARCH_ENDPOINT: {{ .Values.config.opensearchEndpoint | quote }}
+  OPENSEARCH_INDEX: {{ .Values.config.opensearchIndex | quote }}
+  SERVICE_NAME: {{ .Values.config.serviceName | quote }}
+  OTLP_ENDPOINT: {{ .Values.config.otlpEndpoint | quote }}

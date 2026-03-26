@@ -1,0 +1,28 @@
+replicaCount: 1
+
+image:
+  repository: ""        # required: <account_id>.dkr.ecr.eu-central-1.amazonaws.com/ai-agent-repository
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+
+config:
+  environment: "production"
+  awsRegion: "eu-central-1"
+  llmModelId: "anthropic.claude-haiku-20240307-v1:0"
+  embeddingModelId: "amazon.titan-embed-text-v2:0"
+  opensearchEndpoint: ""   # required: set to `terraform output opensearch_endpoint`
+  opensearchIndex: "agent-chunks"
+  serviceName: "mlops-agent"
+  otlpEndpoint: "http://localhost:4317"
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"

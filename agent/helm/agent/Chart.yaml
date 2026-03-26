@@ -1,0 +1,6 @@
+apiVersion: v2
+name: agent
+description: MLOps AI Agent — FastAPI app with RAG and LangChain tool use on AWS Bedrock
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
 name = "mlops-agent"
-version = "0.1.0"
+dynamic = ["version"]   # derived from git tags by hatch-vcs
 requires-python = ">=3.11"
 dependencies = [
     # Web framework — async-first, lightweight, designed for microservice APIs
@@ -58,6 +58,9 @@ dev = [
     "ruff>=0.4",            # fast linter + formatter
     "mypy>=1.10",           # static type checking
 ]
+
+[tool.hatch.version]
+source = "vcs"   # reads version from the nearest git tag matching v*
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agent"]

@@ -11,6 +11,7 @@ are expensive to initialise.
 """
 
 from functools import lru_cache
+from typing import cast
 
 from agent.application.generation.agent_use_case import AgentExecutorPort, AgentUseCase
 from agent.application.ingestion.ingest_url_use_case import IngestUrlUseCase
@@ -100,7 +101,7 @@ def _agent_executor() -> AgentExecutorPort:
     ]
     prompt = hub.pull("hwchase17/openai-tools-agent")
     agent = create_tool_calling_agent(chat_llm, tools, prompt)
-    return AgentExecutor(agent=agent, tools=tools, verbose=False, max_iterations=5)  # type: ignore[return-value]
+    return cast(AgentExecutorPort, AgentExecutor(agent=agent, tools=tools, verbose=False, max_iterations=5))
 
 
 def get_agent_use_case() -> AgentUseCase:

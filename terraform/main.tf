@@ -24,6 +24,12 @@ resource "aws_eks_cluster" "main" {
     subnet_ids = module.vpc.private_subnets
   }
 
+  # Enable access entry API alongside ConfigMap so IAM roles can be granted
+  # cluster access via Terraform (aws_eks_access_entry) without editing aws-auth.
+  access_config {
+    authentication_mode = "API_AND_CONFIG_MAP"
+  }
+
   depends_on = [
     aws_iam_role_policy_attachment.eks_cluster_policy
   ]

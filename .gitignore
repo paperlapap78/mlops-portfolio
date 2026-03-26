@@ -1,0 +1,38 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+_override.tf
+_override.tf.json
+.terraformrc
+terraform.rc
+
+# Project Docs (Exclude from public git)
+docs/
+
+# Python bytecode — never commit compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Test / coverage artefacts
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Type checker / linter caches
+.mypy_cache/
+.ruff_cache/
+
+# Local dev environment
+agent/.env
+
+# OS files
+.DS_Store

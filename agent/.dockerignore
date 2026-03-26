@@ -1,0 +1,31 @@
+# Environment files — NEVER bake real credentials or endpoints into an image
+.env
+.env.*
+!.env.example
+
+# Test code and artefacts — not needed in production image
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checker and linter caches
+.mypy_cache/
+.ruff_cache/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build artefacts
+*.egg-info/
+dist/
+build/
+
+# Editor and OS files
+.DS_Store
+*.swp
+.vscode/
+.idea/

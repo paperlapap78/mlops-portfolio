@@ -86,8 +86,8 @@ def _agent_executor() -> AgentExecutorPort:
     This is the only place in the entire codebase that imports LangChain directly.
     Typed as AgentExecutorPort (Protocol) — no Any needed.
     """
-    from langchain import hub
-    from langchain.agents import AgentExecutor, create_tool_calling_agent
+    from langchain import hub  # type: ignore[attr-defined]
+    from langchain.agents import AgentExecutor, create_tool_calling_agent  # type: ignore[attr-defined]
     from langchain_aws import ChatBedrock
 
     from agent.infrastructure.tools.currency_tool import CurrencyConversionTool

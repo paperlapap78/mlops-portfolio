@@ -44,7 +44,7 @@ def configure_telemetry(environment: str, service_name: str, otlp_endpoint: str)
     provider = TracerProvider(resource=resource)
     exporter = OTLPSpanExporter(endpoint=otlp_endpoint, insecure=True)
     provider.add_span_processor(BatchSpanProcessor(exporter))
-    trace.set_global_tracer_provider(provider)
+    trace.set_tracer_provider(provider)
 
     # Auto-instrument FastAPI — creates spans for every HTTP request handled
     FastAPIInstrumentor().instrument()

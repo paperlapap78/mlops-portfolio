@@ -43,7 +43,7 @@ jobs:
       - name: Type-check with mypy
         # mypy --strict verifies type annotations are correct before any code runs.
         # ignore_missing_imports=true is set in pyproject.toml for incomplete stubs.
-        run: mypy src/
+        run: mypy -p agent
 
       - name: Run unit tests with coverage
         # Only domain/ and application/ are held to the 70% threshold.

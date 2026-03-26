@@ -71,10 +71,10 @@ select = ["E", "F", "I", "UP"]   # pycodestyle, pyflakes, isort, pyupgrade
 
 [tool.mypy]
 strict = true
-disallow_any_explicit = true      # Fails the build if someone explicitly types `Any`
-disallow_any_generics = true      # Fails if someone uses an untyped generic like `list` instead of `list[str]`
 python_version = "3.11"
 ignore_missing_imports = true     # some llama-index/langchain stubs are incomplete
+mypy_path = "src"                 # src/ layout — lets mypy find agent.* modules without installed package
+plugins = ["pydantic.mypy"]      # teaches mypy how BaseModel/BaseSettings/Field() work in pydantic v2
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

@@ -92,9 +92,9 @@ class OpenSearchStore(DocumentStore):
             logger.debug("OpenSearch index already exists", index=self._index)
 
     def index_chunks(self, chunks: list[Chunk]) -> None:
-        from llama_index.core.schema import TextNode
+        from llama_index.core.schema import BaseNode, TextNode
 
-        nodes = [
+        nodes: list[BaseNode] = [
             TextNode(
                 id_=chunk.id,
                 text=chunk.text,
@@ -116,7 +116,7 @@ class OpenSearchStore(DocumentStore):
             Chunk(
                 id=node.id_,
                 document_id=node.metadata.get("doc_id", ""),
-                text=node.text or "",
+                text=node.get_content() or "",
             )
             for node in (result.nodes or [])
         ]

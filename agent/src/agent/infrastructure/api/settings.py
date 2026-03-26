@@ -40,4 +40,4 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     """Singleton settings — reads env vars once and caches the result."""
-    return Settings()  # type: ignore[call-arg]
+    return Settings()

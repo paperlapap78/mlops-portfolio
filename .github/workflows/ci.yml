@@ -1,10 +1,11 @@
 name: CI
 
 # Runs on every push and pull request to main/master.
-# Three jobs:
+# Four jobs:
 #   test         — lint, type-check, unit tests (runs on every push and PR)
 #   helm-lint    — validates the Helm chart (runs on every push and PR)
 #   build-push   — build Docker image and push to ECR (runs only on push to main/master, after both gates pass)
+#   deploy       — helm upgrade --install to EKS (runs after build-push)
 on:
   push:
     branches: [main, master]
@@ -116,3 +117,49 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:latest
 
           echo "Image pushed: $REGISTRY/$REPOSITORY:$IMAGE_TAG"
+
+
+  # ── Job 4: Deploy to EKS ──────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to EKS
+    runs-on: ubuntu-latest
+    needs: build-push
+    if: github.event_name == 'push'
+
+    permissions:
+      id-token: write   # required for OIDC
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-central-1
+
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Update kubeconfig for EKS
+        run: aws eks update-kubeconfig --name ai-agent-eks --region eu-central-1
+
+      - name: Deploy to EKS via Helm
+        # helm upgrade --install is idempotent: installs on first run, upgrades on subsequent runs.
+        # --wait blocks until the Deployment rollout completes (or fails) so the job result
+        # reflects whether the new pod actually started, not just whether the manifest was applied.
+        env:
+          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          helm upgrade --install agent agent/helm/agent \
+            --set image.repository=$REGISTRY/ai-agent-repository \
+            --set image.tag=$IMAGE_TAG \
+            --set config.opensearchEndpoint=${{ secrets.OPENSEARCH_ENDPOINT }} \
+            --wait \
+            --timeout 5m

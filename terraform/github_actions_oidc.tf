@@ -66,6 +66,41 @@ resource "aws_iam_role_policy" "github_actions_ecr" {
   policy = data.aws_iam_policy_document.github_actions_ecr_push.json
 }
 
+# EKS describe permission — needed by `aws eks update-kubeconfig` in the CD job
+data "aws_iam_policy_document" "github_actions_eks" {
+  statement {
+    sid       = "EKSDescribe"
+    actions   = ["eks:DescribeCluster"]
+    resources = [aws_eks_cluster.main.arn]
+  }
+}
+
+resource "aws_iam_role_policy" "github_actions_eks" {
+  name   = "eks-describe"
+  role   = aws_iam_role.github_actions.id
+  policy = data.aws_iam_policy_document.github_actions_eks.json
+}
+
+# EKS access entry — maps the IAM role to a Kubernetes cluster-admin principal.
+# Uses the access entry API (AWS provider >= 5.x) — no aws-auth ConfigMap editing.
+resource "aws_eks_access_entry" "github_actions" {
+  cluster_name  = aws_eks_cluster.main.name
+  principal_arn = aws_iam_role.github_actions.arn
+  type          = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "github_actions_admin" {
+  cluster_name  = aws_eks_cluster.main.name
+  principal_arn = aws_iam_role.github_actions.arn
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_eks_access_entry.github_actions]
+}
+
 output "github_actions_role_arn" {
   description = "Store this as the AWS_ROLE_ARN secret in GitHub Actions"
   value       = aws_iam_role.github_actions.arn

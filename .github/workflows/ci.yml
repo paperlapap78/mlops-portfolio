@@ -1,9 +1,10 @@
 name: CI
 
 # Runs on every push and pull request to main/master.
-# Two jobs:
+# Three jobs:
 #   test         — lint, type-check, unit tests (runs on every push and PR)
-#   build-push   — build Docker image and push to ECR (runs only on push to main/master)
+#   helm-lint    — validates the Helm chart (runs on every push and PR)
+#   build-push   — build Docker image and push to ECR (runs only on push to main/master, after both gates pass)
 on:
   push:
     branches: [main, master]
@@ -57,11 +58,26 @@ jobs:
             -v
 
 
-  # ── Job 2: Build and push to ECR ─────────────────────────────────────────────
+  # ── Job 2: Helm chart lint ───────────────────────────────────────────────────
+  helm-lint:
+    name: Lint Helm chart
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Lint Helm chart
+        run: helm lint agent/helm/agent
+
+
+  # ── Job 3: Build and push to ECR ─────────────────────────────────────────────
   build-push:
     name: Build Docker image and push to ECR
     runs-on: ubuntu-latest
-    needs: test                              # only runs if the test job passes
+    needs: [test, helm-lint]                 # only runs if both quality gates pass
     if: github.event_name == 'push'         # not on pull requests — avoid pushing unreviewed code
 
     permissions:

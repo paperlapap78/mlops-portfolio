@@ -15,6 +15,7 @@ import structlog
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
 
+from agent.domain.model.email import DraftEmailRequest, DraftEmailResult
 from agent.domain.ports.llm import LLM
 
 logger = structlog.get_logger()
@@ -44,24 +45,34 @@ class DraftEmailTool(BaseTool):
         '"key_points" (list of strings).'
     )
 
-    # LangChain BaseTool uses Pydantic — fields must be declared at class level
+    # LangChain BaseTool uses Pydantic — private fields must bypass model validation
     _llm: LLM
+    _model_id: str
 
-    def __init__(self, llm: LLM) -> None:
+    def __init__(self, llm: LLM, model_id: str) -> None:
         super().__init__()
         object.__setattr__(self, "_llm", llm)
+        object.__setattr__(self, "_model_id", model_id)
 
     def _run(self, tool_input: str) -> str:
-        data = json.loads(tool_input)
-        validated = _EmailInput(**data)
+        # _EmailInput validates the raw JSON from the LangChain agent
+        validated = _EmailInput(**json.loads(tool_input))
 
-        key_points_text = "\n".join(f"  - {point}" for point in validated.key_points)
-        prompt = _EMAIL_PROMPT.format(
+        # Map to the domain model — canonical representation inside this adapter
+        request = DraftEmailRequest(
             recipient=validated.recipient,
             subject=validated.subject,
+            key_points=validated.key_points,
+        )
+
+        key_points_text = "\n".join(f"  - {point}" for point in request.key_points)
+        prompt = _EMAIL_PROMPT.format(
+            recipient=request.recipient,
+            subject=request.subject,
             key_points=key_points_text,
         )
 
-        result = self._llm.complete(prompt)
-        logger.info("Email drafted", recipient=validated.recipient, subject=validated.subject)
-        return result
+        body = self._llm.complete(prompt)
+        email_result = DraftEmailResult(body=body, model_id=self._model_id)
+        logger.info("Email drafted", recipient=request.recipient, subject=request.subject)
+        return email_result.body  # LangChain expects str

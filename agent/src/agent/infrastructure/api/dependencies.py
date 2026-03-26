@@ -96,7 +96,7 @@ def _agent_executor() -> AgentExecutorPort:
     s = get_settings()
     chat_llm = ChatBedrock(model_id=s.llm_model_id, region_name=s.aws_region)
     tools = [
-        DraftEmailTool(llm=_bedrock_llm()),
+        DraftEmailTool(llm=_bedrock_llm(), model_id=s.llm_model_id),
         CurrencyConversionTool(),
     ]
     prompt = hub.pull("hwchase17/openai-tools-agent")

@@ -10,14 +10,14 @@ module "vpc" {
   cidr = "10.0.0.0/16"
 
   # EKS strictly requires at least 2 availability zones
-  azs             = slice(data.aws_availability_zones.available.names, 0, 2)
-  
+  azs = slice(data.aws_availability_zones.available.names, 0, 2)
+
   # Private subnets are where the actual EKS nodes (t3.medium) will live 
   # so they cannot be reached from the public internet directly.
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
-  
+
   # Public subnets hold the NAT Gateway and Load Balancers
-  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
+  public_subnets = ["10.0.101.0/24", "10.0.102.0/24"]
 
   # NAT Gateway is mandatory for private subnet instances to reach out 
   # to the internet (e.g. to download Docker images or contact Bedrock API).

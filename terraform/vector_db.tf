@@ -22,7 +22,7 @@ resource "aws_opensearchserverless_access_policy" "agent_access" {
       Rules = [
         {
           ResourceType = "collection",
-          Resource = ["collection/${aws_opensearchserverless_collection.agent_collection.name}"],
+          Resource     = ["collection/${aws_opensearchserverless_collection.agent_collection.name}"],
           Permission = [
             "aoss:CreateCollectionItems",
             "aoss:DeleteCollectionItems",
@@ -32,7 +32,7 @@ resource "aws_opensearchserverless_access_policy" "agent_access" {
         },
         {
           ResourceType = "index",
-          Resource = ["index/${aws_opensearchserverless_collection.agent_collection.name}/*"],
+          Resource     = ["index/${aws_opensearchserverless_collection.agent_collection.name}/*"],
           Permission = [
             "aoss:CreateIndex",
             "aoss:DeleteIndex",
@@ -60,7 +60,7 @@ resource "aws_opensearchserverless_security_policy" "agent_security" {
       Rules = [
         {
           ResourceType = "collection",
-          Resource = ["collection/ai-agent-collection"]
+          Resource     = ["collection/ai-agent-collection"]
         }
       ],
       AllowFromPublic = true
@@ -76,7 +76,7 @@ resource "aws_opensearchserverless_security_policy" "agent_encryption" {
     Rules = [
       {
         ResourceType = "collection",
-        Resource = ["collection/ai-agent-collection"]
+        Resource     = ["collection/ai-agent-collection"]
       }
     ],
     AWSOwnedKey = true

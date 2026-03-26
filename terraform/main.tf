@@ -11,7 +11,7 @@ resource "aws_ecr_repository" "agent_repo" {
 
 # AWS Secrets Manager (for AI API Keys)
 resource "aws_secretsmanager_secret" "ai_secrets" {
-  name = "ai-agent-secrets-${var.environment}"
+  name                    = "ai-agent-secrets-${var.environment}"
   recovery_window_in_days = 0 # Forces immediate deletion if destroyed to save costs
 }
 
@@ -54,7 +54,7 @@ resource "aws_eks_node_group" "main" {
 # CloudWatch Logs for Observability
 resource "aws_cloudwatch_log_group" "eks_logs" {
   name              = "/aws/eks/${var.cluster_name}/logs"
-  retention_in_days = 1    # Minimise log storage cost — logs expire after 1 day
+  retention_in_days = 1     # Minimise log storage cost — logs expire after 1 day
   skip_destroy      = false # Explicitly delete this log group on terraform destroy (default is false, but stated clearly)
 }
 

@@ -1,24 +1,23 @@
 """
 LangChain tool: Currency Conversion
 
-Converts amounts between currencies using the Frankfurter API:
-  https://api.frankfurter.app
+The LangChain agent calls this tool when the user asks to convert currencies.
+The tool takes the agent's structured input, delegates to the CurrencyService port
+(not httpx directly), and returns a formatted result string.
 
-Free, no API key, GDPR-safe (EU-hosted), updated daily with ECB exchange rates.
-httpx calls here are auto-instrumented by OTel (HTTPXClientInstrumentor),
-so they appear as child spans in X-Ray traces.
+Injecting CurrencyService (rather than calling httpx inline) means this tool
+can be unit-tested with FakeCurrencyService from conftest.py without any network access.
 """
 
 import json
 
-import httpx
 import structlog
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
 
-logger = structlog.get_logger()
+from agent.domain.ports.currency_service import CurrencyService
 
-_FRANKFURTER_URL = "https://api.frankfurter.app/latest"
+logger = structlog.get_logger()
 
 
 class _CurrencyInput(BaseModel):
@@ -33,33 +32,28 @@ class CurrencyConversionTool(BaseTool):
         "Convert a monetary amount between two currencies using live exchange rates. "
         'Input must be JSON with keys: "amount" (float), '
         '"from_currency" (str, ISO 4217), "to_currency" (str, ISO 4217). '
-        "Example: {\"amount\": 100, \"from_currency\": \"CHF\", \"to_currency\": \"EUR\"}"
+        'Example: {"amount": 100, "from_currency": "CHF", "to_currency": "EUR"}'
     )
 
+    # LangChain BaseTool uses Pydantic — private fields must bypass model validation
+    _currency_service: CurrencyService
+
+    def __init__(self, currency_service: CurrencyService) -> None:
+        super().__init__()
+        object.__setattr__(self, "_currency_service", currency_service)
+
     def _run(self, tool_input: str) -> str:
-        data = json.loads(tool_input)
-        validated = _CurrencyInput(**data)
+        validated = _CurrencyInput(**json.loads(tool_input))
 
-        response = httpx.get(
-            _FRANKFURTER_URL,
-            params={
-                "base": validated.from_currency.upper(),
-                "symbols": validated.to_currency.upper(),
-            },
-            timeout=10.0,
+        converted = self._currency_service.convert(
+            amount=validated.amount,
+            from_currency=validated.from_currency,
+            to_currency=validated.to_currency,
         )
-        response.raise_for_status()
 
-        rates = response.json()["rates"]
-        target = validated.to_currency.upper()
-
-        if target not in rates:
-            return f"Currency {target} not found in exchange rates."
-
-        converted = round(validated.amount * rates[target], 2)
         result = (
             f"{validated.amount} {validated.from_currency.upper()} = "
-            f"{converted} {target}"
+            f"{converted} {validated.to_currency.upper()}"
         )
 
         logger.info(

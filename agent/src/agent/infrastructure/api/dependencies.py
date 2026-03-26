@@ -21,6 +21,7 @@ from agent.infrastructure.aws.bedrock_embedder import BedrockEmbedder
 from agent.infrastructure.aws.bedrock_llm import BedrockLLM
 from agent.infrastructure.langchain_splitter import LangChainDocumentSplitter
 from agent.infrastructure.opensearch.opensearch_store import OpenSearchStore
+from agent.infrastructure.frankfurter_currency_service import FrankfurterCurrencyService
 from agent.infrastructure.scrapers.httpx_scraper import HttpxScraper
 
 
@@ -46,6 +47,11 @@ def _opensearch_store(settings: Settings | None = None) -> OpenSearchStore:
         index=s.opensearch_index,
         region=s.aws_region,
     )
+
+
+@lru_cache
+def _frankfurter_currency_service() -> FrankfurterCurrencyService:
+    return FrankfurterCurrencyService()
 
 
 @lru_cache
@@ -97,7 +103,7 @@ def _agent_executor() -> AgentExecutorPort:
     chat_llm = ChatBedrock(model_id=s.llm_model_id, region_name=s.aws_region)
     tools = [
         DraftEmailTool(llm=_bedrock_llm(), model_id=s.llm_model_id),
-        CurrencyConversionTool(),
+        CurrencyConversionTool(currency_service=_frankfurter_currency_service()),
     ]
     prompt = hub.pull("hwchase17/openai-tools-agent")
     agent = create_tool_calling_agent(chat_llm, tools, prompt)

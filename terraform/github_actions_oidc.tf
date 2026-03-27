@@ -101,6 +101,25 @@ resource "aws_eks_access_policy_association" "github_actions_admin" {
   depends_on = [aws_eks_access_entry.github_actions]
 }
 
+# Local developer access — grants kubectl access for the dev SSO role
+resource "aws_eks_access_entry" "developer" {
+  cluster_name  = aws_eks_cluster.main.name
+  principal_arn = "arn:aws:iam::339712990928:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_PrincipalDev_9ef405e76c9aa695"
+  type          = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "developer_admin" {
+  cluster_name  = aws_eks_cluster.main.name
+  principal_arn = "arn:aws:iam::339712990928:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_PrincipalDev_9ef405e76c9aa695"
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_eks_access_entry.developer]
+}
+
 output "github_actions_role_arn" {
   description = "Store this as the AWS_ROLE_ARN secret in GitHub Actions"
   value       = aws_iam_role.github_actions.arn

@@ -53,7 +53,6 @@ def configure_logging(environment: str, service_name: str) -> None:
         structlog.contextvars.merge_contextvars,  # request-scoped fields (e.g. request_id)
         structlog.processors.add_log_level,
         structlog.processors.TimeStamper(fmt="iso", utc=True),
-        structlog.stdlib.add_logger_name,
         _inject_trace_id,
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,

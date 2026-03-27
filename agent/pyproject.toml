@@ -60,7 +60,8 @@ dev = [
 ]
 
 [tool.hatch.version]
-source = "vcs"   # reads version from the nearest git tag matching v*
+source = "vcs"                     # reads version from the nearest git tag matching v*
+search-parent-directories = true   # agent/ is a subdirectory of the repo root
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agent"]

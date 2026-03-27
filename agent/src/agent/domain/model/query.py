@@ -8,7 +8,7 @@ that were retrieved — important for explainability and evaluation (RAGAS).
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from agent.domain.model.document import Chunk
 
@@ -18,7 +18,7 @@ class Query:
     """A user question sent to the RAG retrieval pipeline."""
 
     text: str
-    top_k: int = 5    # how many chunks to retrieve from the vector store
+    top_k: int = 5  # how many chunks to retrieve from the vector store
 
 
 @dataclass
@@ -26,6 +26,6 @@ class Response:
     """The generated answer, together with provenance and performance metadata."""
 
     answer: str
-    source_chunks: list[Chunk]    # the retrieved chunks used to ground the answer
-    model_id: str                 # which Bedrock model generated the response
-    latency_ms: float             # end-to-end time from query embed to answer — useful for CloudWatch
+    source_chunks: list[Chunk]  # the retrieved chunks used to ground the answer
+    model_id: str  # which Bedrock model generated the response
+    latency_ms: float  # end-to-end latency — useful for CloudWatch

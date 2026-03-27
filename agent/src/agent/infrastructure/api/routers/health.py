@@ -12,7 +12,7 @@ from fastapi import APIRouter
 
 router = APIRouter(tags=["health"])
 
-_VERSION = version("mlops-agent")   # read once at import time from package metadata
+_VERSION = version("mlops-agent")  # read once at import time from package metadata
 
 
 @router.get("/health")

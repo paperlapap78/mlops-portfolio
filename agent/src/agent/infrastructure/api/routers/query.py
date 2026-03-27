@@ -19,7 +19,7 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     answer: str
-    source_chunk_ids: list[str]    # for explainability and RAGAS evaluation
+    source_chunk_ids: list[str]  # for explainability and RAGAS evaluation
     model_id: str
     latency_ms: float
 

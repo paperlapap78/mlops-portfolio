@@ -23,8 +23,7 @@ class AgentExecutorPort(Protocol):
     LangChain's AgentExecutor satisfies this Protocol without modification.
     """
 
-    def invoke(self, input: dict[str, str]) -> dict[str, str]:
-        ...
+    def invoke(self, input: dict[str, str]) -> dict[str, str]: ...
 
 
 class AgentUseCase:

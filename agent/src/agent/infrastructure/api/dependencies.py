@@ -19,13 +19,13 @@ from agent.application.retrieval.answer_query_use_case import AnswerQueryUseCase
 from agent.infrastructure.api.settings import Settings, get_settings
 from agent.infrastructure.aws.bedrock_embedder import BedrockEmbedder
 from agent.infrastructure.aws.bedrock_llm import BedrockLLM
+from agent.infrastructure.frankfurter_currency_service import FrankfurterCurrencyService
 from agent.infrastructure.langchain_splitter import LangChainDocumentSplitter
 from agent.infrastructure.opensearch.opensearch_store import OpenSearchStore
-from agent.infrastructure.frankfurter_currency_service import FrankfurterCurrencyService
 from agent.infrastructure.scrapers.httpx_scraper import HttpxScraper
 
-
 # ── Infrastructure singletons ──────────────────────────────────────────────────
+
 
 @lru_cache
 def _bedrock_llm(settings: Settings | None = None) -> BedrockLLM:
@@ -66,6 +66,7 @@ def _document_splitter() -> LangChainDocumentSplitter:
 
 # ── Use case factories (called per request via FastAPI Depends) ────────────────
 
+
 def get_ingest_use_case() -> IngestUrlUseCase:
     return IngestUrlUseCase(
         scraper=_httpx_scraper(),
@@ -93,7 +94,10 @@ def _agent_executor() -> AgentExecutorPort:
     Typed as AgentExecutorPort (Protocol) — no Any needed.
     """
     from langchain import hub  # type: ignore[attr-defined]
-    from langchain.agents import AgentExecutor, create_tool_calling_agent  # type: ignore[attr-defined]
+    from langchain.agents import (  # type: ignore[attr-defined]
+        AgentExecutor,
+        create_tool_calling_agent,
+    )
     from langchain_aws import ChatBedrock
 
     from agent.infrastructure.tools.currency_tool import CurrencyConversionTool
@@ -107,7 +111,10 @@ def _agent_executor() -> AgentExecutorPort:
     ]
     prompt = hub.pull("hwchase17/openai-tools-agent")
     agent = create_tool_calling_agent(chat_llm, tools, prompt)
-    return cast(AgentExecutorPort, AgentExecutor(agent=agent, tools=tools, verbose=False, max_iterations=5))
+    return cast(
+        AgentExecutorPort,
+        AgentExecutor(agent=agent, tools=tools, verbose=False, max_iterations=5),
+    )
 
 
 def get_agent_use_case() -> AgentUseCase:

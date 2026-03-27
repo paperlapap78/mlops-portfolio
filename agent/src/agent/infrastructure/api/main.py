@@ -8,8 +8,8 @@ The lifespan context manager runs at startup and shutdown:
 Routers are mounted with their URL prefixes here.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI
 
@@ -36,6 +36,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     )
 
     import structlog
+
     log = structlog.get_logger()
     log.info(
         "Application started",

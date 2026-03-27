@@ -8,7 +8,8 @@ Two modes, selected by the ENVIRONMENT setting:
 
   production   →  JSON to stdout, picked up by EKS Fluent Bit and shipped to CloudWatch.
                   Each line is a JSON object queryable in CloudWatch Log Insights:
-                  {"timestamp": "...", "level": "info", "event": "Ingested chunks", "chunk_count": 42, "trace_id": "abc123"}
+                  {"timestamp": "...", "level": "info", "event": "Ingested chunks",
+                   "chunk_count": 42, "trace_id": "abc123"}
 
 Call configure_logging() once at application startup (api/main.py lifespan),
 before configure_telemetry(), so the trace_id processor can find an active span.
@@ -49,7 +50,7 @@ def configure_logging(environment: str, service_name: str) -> None:
     service_name: injected into every log line as the "service" key
     """
     shared_processors: list[Any] = [
-        structlog.contextvars.merge_contextvars,   # request-scoped fields (e.g. request_id)
+        structlog.contextvars.merge_contextvars,  # request-scoped fields (e.g. request_id)
         structlog.processors.add_log_level,
         structlog.processors.TimeStamper(fmt="iso", utc=True),
         structlog.stdlib.add_logger_name,

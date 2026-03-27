@@ -15,10 +15,10 @@ from dataclasses import dataclass
 class DraftEmailRequest:
     recipient: str
     subject: str
-    key_points: list[str]    # bullet points the email body should cover
+    key_points: list[str]  # bullet points the email body should cover
 
 
 @dataclass
 class DraftEmailResult:
-    body: str        # the drafted email body
-    model_id: str    # which Bedrock model was used
+    body: str  # the drafted email body
+    model_id: str  # which Bedrock model was used

@@ -14,11 +14,11 @@ HNSW (Hierarchical Navigable Small World) is the approximate nearest-neighbour
 algorithm used. Faiss engine gives best performance on OpenSearch Serverless.
 """
 
-import structlog
 import boto3
+import structlog
+from llama_index.vector_stores.opensearch import OpensearchVectorClient, OpensearchVectorStore
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
-from llama_index.vector_stores.opensearch import OpensearchVectorStore, OpensearchVectorClient
 
 from agent.domain.model.document import Chunk
 from agent.domain.ports.document_store import DocumentStore

@@ -6,6 +6,10 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /build
 
+# hatch-vcs reads the version from git tags, but Docker builds have no .git directory.
+# Pass the version in at build time; CI supplies the real tag, local builds fall back to 0.0.0.
+ARG SETUPTOOLS_SCM_PRETEND_VERSION=0.0.0
+
 # Copy only the packaging manifest first.
 # Docker layer-caches this step — a code change in src/ won't re-run pip install.
 COPY pyproject.toml .

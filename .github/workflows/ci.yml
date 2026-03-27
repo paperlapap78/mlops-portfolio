@@ -111,7 +111,10 @@ jobs:
           REPOSITORY: ai-agent-repository
           IMAGE_TAG: ${{ github.sha }}   # unique tag per commit — enables rollback
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG agent/
+          docker build \
+            --build-arg SETUPTOOLS_SCM_PRETEND_VERSION=$(git describe --tags --always) \
+            -t $REGISTRY/$REPOSITORY:$IMAGE_TAG \
+            agent/
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
           # Also tag as `latest` so EKS can always pull the most recent build
